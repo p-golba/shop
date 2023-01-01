@@ -21,5 +21,5 @@ class Product with ChangeNotifier{
     isFavourite = !isFavourite;
     notifyListeners();
   }
-  
+
 }
