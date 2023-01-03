@@ -35,8 +35,8 @@ class ProductItem extends StatelessWidget {
           leading: Consumer<Product>(
             builder: (context, value, _) {
               return IconButton(
-                onPressed: () {
-                  value.toogleFavourite();
+                onPressed: () async {
+                  await value.toogleFavourite();
                 },
                 icon: Icon(
                   value.isFavourite ? Icons.favorite : Icons.favorite_border,
