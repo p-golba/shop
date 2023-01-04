@@ -5,24 +5,43 @@ import '../providers/orders.dart' show Orders;
 import '../widgets/order_item.dart';
 import '../widgets/app_drawer.dart';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
 
   static const routeName = '/orders';
 
   @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  @override
   Widget build(BuildContext context) {
-    final orderData = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Orders'),
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          return OrderItem(orderData.orders[index]);
-        },
-        itemCount: orderData.orders.length,
-      ),
+      body: FutureBuilder(
+          future: Provider.of<Orders>(
+            context,
+            listen: false,
+          ).fetchAndSetOrders(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Consumer<Orders>(builder: (context, value, child) {
+                return ListView.builder(
+                  itemBuilder: (context, index) {
+                    return OrderItem(value.orders[index]);
+                  },
+                  itemCount: value.orders.length,
+                );
+              });
+            }
+          }),
       drawer: const AppDrawer(),
     );
   }

@@ -20,10 +20,39 @@ class OrderItem {
 }
 
 class Orders with ChangeNotifier {
-  final List<OrderItem> _orders = [];
+  List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
     return [..._orders];
+  }
+
+  Future<void> fetchAndSetOrders() async {
+    List<OrderItem> loadedOrders = [];
+    final url = Uri.parse(
+        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      extractedData.forEach((key, value) {
+        loadedOrders.add(OrderItem(
+          id: key,
+          amount: value['amount'],
+          dateTime: DateTime.parse(value['dateTime']),
+          products: (value['products'] as List<dynamic>).map((e) {
+            return CartItem(
+              id: e['id'],
+              title: e['title'],
+              quantity: e['quantity'],
+              price: e['price'],
+            );
+          }).toList(),
+        ));
+        _orders = loadedOrders.reversed.toList();
+        notifyListeners();
+      });
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
@@ -35,8 +64,15 @@ class Orders with ChangeNotifier {
         url,
         body: json.encode({
           'amount': total,
-          'products': cartProducts,
-          'dateTime': orderDate,
+          'dateTime': orderDate.toIso8601String(),
+          'products': cartProducts
+              .map((e) => {
+                    'id': e.id,
+                    'title': e.title,
+                    'quantity': e.quantity,
+                    'price': e.price
+                  })
+              .toList(),
         }),
       );
       _orders.add(OrderItem(
