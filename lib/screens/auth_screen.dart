@@ -1,6 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth.dart';
+import '../models/http_exception.dart';
 
 enum AuthMode { signup, login }
 
@@ -100,7 +104,26 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() {
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('An Error Occured'),
+          content: Text(message),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Okay'))
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -109,11 +132,44 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.login) {
-      // Log user in
-    } else {
-      // Sign user up
+    try {
+      if (_authMode == AuthMode.login) {
+        await Provider.of<Auth>(
+          context,
+          listen: false,
+        ).singin(
+          _authData['email'] as String,
+          _authData['password'] as String,
+        );
+      } else {
+        await Provider.of<Auth>(
+          context,
+          listen: false,
+        ).singnup(
+          _authData['email'] as String,
+          _authData['password'] as String,
+        );
+      }
+    } on HttpException catch (e) {
+      var errorMessage = 'Authentication failed';
+      if (e.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email adress is already in use.';
+      } else if (e.toString().contains('INVALID_EMAIL')) {
+        errorMessage = 'This is not a valid email adress';
+      } else if (e.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = 'This password is too weak';
+      } else if (e.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = 'Could not find user with that email';
+      } else if (e.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid password.';
+      }
+      _showErrorDialog(errorMessage);
+    } catch (e) {
+      const errorMessage =
+          'Could not authenticate you. Please try again later.';
+      _showErrorDialog(errorMessage);
     }
+
     setState(() {
       _isLoading = false;
     });
@@ -200,19 +256,30 @@ class _AuthCardState extends State<AuthCard> {
                 else
                   ElevatedButton(
                     onPressed: _submit,
-
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)
-                        )
+                            borderRadius: BorderRadius.circular(30)),
                       ),
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                      ),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.secondary),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.primary),
                     ),
                     child:
                         Text(_authMode == AuthMode.login ? 'LOGIN' : 'SIGN UP'),
                   ),
                 TextButton(
                   onPressed: _switchAuthMode,
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 4)),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.primary)),
                   child: Text(
                       '${_authMode == AuthMode.login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                 ),
