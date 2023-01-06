@@ -29,7 +29,7 @@ class Orders with ChangeNotifier {
   Future<void> fetchAndSetOrders() async {
     List<OrderItem> loadedOrders = [];
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -58,7 +58,7 @@ class Orders with ChangeNotifier {
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final orderDate = DateTime.now();
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
     try {
       final response = await http.post(
         url,

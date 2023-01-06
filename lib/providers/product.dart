@@ -24,7 +24,7 @@ class Product with ChangeNotifier {
     isFavourite = !isFavourite;
     notifyListeners();
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
     final response = await http.patch(
       url,
       body: json.encode({'isFavourite': isFavourite}),

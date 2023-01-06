@@ -56,7 +56,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/products.json');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products.json');
     try {
       final response = await http.post(
         url,
@@ -86,7 +86,7 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/products.json');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products.json');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -113,7 +113,7 @@ class Products with ChangeNotifier {
     if (index >= 0) {
       try {
         final url = Uri.parse(
-            'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
+            'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
         await http.patch(
           url,
           body: json.encode({
@@ -133,7 +133,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shop-a0a5e-default-rtdb.europe-west1.firebasedatabase.app/products/$id');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
     final exisitngProductIndex =
         _items.indexWhere((element) => element.id == id);
     Product? existingProduct = _items[exisitngProductIndex];
