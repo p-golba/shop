@@ -97,6 +97,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             listen: false,
           ).addProduct(_editedProduct);
         } catch (error) {
+          print(error);
           await showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
