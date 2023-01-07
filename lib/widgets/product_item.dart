@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   const ProductItem({super.key});
@@ -27,6 +28,10 @@ class ProductItem extends StatelessWidget {
       context,
       listen: false,
     );
+    final authData = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -36,7 +41,10 @@ class ProductItem extends StatelessWidget {
             builder: (context, value, _) {
               return IconButton(
                 onPressed: () async {
-                  await value.toogleFavourite();
+                  await value.toogleFavourite(
+                    authData.token as String,
+                    authData.userId as String,
+                  );
                 },
                 icon: Icon(
                   value.isFavourite ? Icons.favorite : Icons.favorite_border,
@@ -64,7 +72,7 @@ class ProductItem extends StatelessWidget {
                   duration: const Duration(seconds: 2),
                   action: SnackBarAction(
                     label: 'UNDO',
-                    onPressed: (){
+                    onPressed: () {
                       cart.removeSingleItem(product.id);
                     },
                   ),

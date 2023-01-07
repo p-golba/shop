@@ -13,7 +13,6 @@ class Products with ChangeNotifier {
 
   void update(String token){
     authToken = token;
-    notifyListeners();
   }
 
   List<Product> get items {
