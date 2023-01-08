@@ -10,9 +10,11 @@ class Products with ChangeNotifier {
   List<Product> _items = [];
 
   String? authToken;
+  String? userId;
 
-  void update(String token){
+  void update(String? token, String? id) {
     authToken = token;
+    userId = id;
   }
 
   List<Product> get items {
@@ -39,7 +41,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
-            'isFavourite': product.isFavourite
+            'owner': userId,
           },
         ),
       );
@@ -57,12 +59,18 @@ class Products with ChangeNotifier {
     }
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString = filterByUser ? 'orderBy="owner"&equalTo="$userId"' : '';
     final url = Uri.parse(
-        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken&$filterString');
+    final url2 = Uri.parse(
+        'https://shop-92b22-default-rtdb.europe-west1.firebasedatabase.app/userFavourites/$userId.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final favouriteResponse = await http.get(url2);
+      final favouriteData = json.decode(favouriteResponse.body);
+
       final List<Product> helper = [];
       extractedData.forEach((key, value) {
         helper.add(Product(
@@ -71,7 +79,7 @@ class Products with ChangeNotifier {
           description: value['description'],
           price: value['price'],
           imageUrl: value['imageUrl'],
-          isFavourite: value['isFavourite'],
+          isFavourite: favouriteData == null ? false : favouriteData[key] ?? false,
         ));
         _items = helper;
         notifyListeners();

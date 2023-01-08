@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/screens/products_overview_screen.dart';
 
 import './screens/cart_screen.dart';
-// import './screens/products_overview_screen.dart';
+import './screens/products_overview_screen.dart';
 import './screens/product_detail_screen.dart';
 import './screens/orders_screen.dart';
 import './screens/user_products_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/auth_screen.dart';
+import './screens/splash_screen.dart';
 import './providers/products.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
@@ -26,12 +26,20 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => Auth()),
           ChangeNotifierProxyProvider<Auth, Products>(
             create: (context) => Products(),
-            update: (_, value, previous) => previous!..update(value.token as String),
+            update: (_, value, previous) => previous!
+              ..update(
+                value.token,
+                value.userId,
+              ),
           ),
           ChangeNotifierProvider(create: (_) => Cart()),
           ChangeNotifierProxyProvider<Auth, Orders>(
             create: (_) => Orders(),
-            update: (_, value, previous) => previous!..updateToken(value.token as String),
+            update: (_, value, previous) => previous!
+              ..updateToken(
+                value.token,
+                value.userId,
+              ),
           )
         ],
         child: Consumer<Auth>(
@@ -49,7 +57,13 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               home: value.isAuth
                   ? const ProductsOverviewScreen()
-                  : const AuthScreen(),
+                  : FutureBuilder(
+                      future: value.tryAutoLogin(),
+                      builder: ((context, snapshot) =>
+                          snapshot.connectionState == ConnectionState.waiting
+                              ? const SplashScreen()
+                              : const AuthScreen()),
+                    ),
               routes: {
                 ProductDetailScreen.routeName: (context) =>
                     const ProductDetailScreen(),

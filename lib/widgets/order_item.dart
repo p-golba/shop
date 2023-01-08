@@ -68,6 +68,7 @@ class _OrderItemState extends State<OrderItem> {
                   ],
                 );
               },
+              itemCount: widget.order.products.length,
             ),
           )
       ]),
