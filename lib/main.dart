@@ -13,6 +13,7 @@ import './providers/products.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
 import './providers/auth.dart';
+import './helpers/custom_route.dart';
 
 void main() => runApp(const MyApp());
 
@@ -53,6 +54,10 @@ class MyApp extends StatelessWidget {
                   secondary: Colors.grey,
                 ),
                 fontFamily: 'Lato',
+                pageTransitionsTheme: PageTransitionsTheme(builders: {
+                  TargetPlatform.android: CustomPageTransitionBuilder(),
+                  TargetPlatform.iOS: CustomPageTransitionBuilder(),
+                }),
               ),
               debugShowCheckedModeBanner: false,
               home: value.isAuth
